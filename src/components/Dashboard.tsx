@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { colors, styles } from '../styles';
+import { useTheme } from './ThemeProvider';
 import { AttendanceRecord, Exam, ScheduleItem, Task, ModuleKey } from '../types';
 
 export function Dashboard({
@@ -20,6 +21,7 @@ export function Dashboard({
   onOpenModule: (module: ModuleKey) => void;
   onAddTask: () => void;
 }) {
+  const { isDark } = useTheme();
   const averageAttendance = attendance.length
     ? Math.round(attendance.reduce((sum, item) => sum + (item.total ? item.present / item.total : 0), 0) / attendance.length * 100)
     : 0;
@@ -34,9 +36,9 @@ export function Dashboard({
         <StatCard value={nextExam ? nextExam.date : '—'} label="Next exam" accent={colors.peach} />
         <StatCard value={`${completed}/${tasks.length}`} label="Tasks complete" accent={colors.blue} />
       </View>
-      <View style={styles.card}>
+      <View style={[styles.card, isDark && styles.darkCard]}>
         <View style={styles.cardHeading}>
-          <View><Text style={styles.cardTitle}>Next class</Text><Text style={styles.cardSubtitle}>{nextClass ? `${nextClass.day} · ${nextClass.time}` : 'Your schedule is empty'}</Text></View>
+          <View><Text style={[styles.cardTitle, isDark && styles.darkCardTitle]}>Next class</Text><Text style={[styles.cardSubtitle, isDark && styles.darkCardSubtitle]}>{nextClass ? `${nextClass.day} · ${nextClass.time}` : 'Your schedule is empty'}</Text></View>
           <Pressable onPress={() => onOpenModule('schedule')}><Text style={styles.seeAll}>Manage</Text></Pressable>
         </View>
         {nextClass ? (
@@ -46,9 +48,9 @@ export function Dashboard({
           </View>
         ) : <Text style={styles.emptyText}>Add your first class to see it here.</Text>}
       </View>
-      <View style={styles.card}>
+      <View style={[styles.card, isDark && styles.darkCard]}>
         <View style={styles.cardHeading}>
-          <View><Text style={styles.cardTitle}>Your tasks</Text><Text style={styles.cardSubtitle}>{tasks.length ? 'Keep the momentum going' : 'Nothing planned yet'}</Text></View>
+          <View><Text style={[styles.cardTitle, isDark && styles.darkCardTitle]}>Your tasks</Text><Text style={[styles.cardSubtitle, isDark && styles.darkCardSubtitle]}>{tasks.length ? 'Keep the momentum going' : 'Nothing planned yet'}</Text></View>
           <Pressable onPress={() => onOpenModule('assignments')}><Text style={styles.seeAll}>See all</Text></Pressable>
         </View>
         {tasks.slice(0, 4).map(task => (
@@ -60,7 +62,7 @@ export function Dashboard({
         ))}
         {!tasks.length && <Text style={styles.emptyText}>Create a task to start planning your day.</Text>}
       </View>
-      <Pressable style={styles.addActivityButton} onPress={onAddTask}><Text style={styles.addActivityIcon}>＋</Text><Text style={styles.addActivityText}>Add task</Text></Pressable>
+      <Pressable style={[styles.addActivityButton, isDark && styles.darkAddActivityButton]} onPress={onAddTask}><Text style={styles.addActivityIcon}>＋</Text><Text style={styles.addActivityText}>Add task</Text></Pressable>
       <View style={styles.progressCard}>
         <View style={styles.progressTop}><View><Text style={styles.progressKicker}>DAILY PROGRESS</Text><Text style={styles.progressTitle}>{tasks.length ? 'You are on a roll.' : 'Build your study plan.'}</Text></View><Text style={styles.progressPercent}>{tasks.length ? `${Math.round(completed / tasks.length * 100)}%` : '0%'}</Text></View>
         <View style={styles.progressTrack}><View style={[styles.progressFill, { width: tasks.length ? `${completed / tasks.length * 100}%` : '0%' }]} /></View>

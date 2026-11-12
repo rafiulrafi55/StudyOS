@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { colors, styles } from '../styles';
 import { AttendanceRecord, Exam, Grade, Note, ScheduleItem, Task } from '../types';
+import { useTheme } from './ThemeProvider';
 
 export type CreateMode = 'task' | 'schedule' | 'exam' | 'attendance' | 'note' | 'grade';
 export type NewItem = Task | ScheduleItem | Exam | AttendanceRecord | Note | Grade;
@@ -17,6 +18,7 @@ export function CreateItemModal({
   onClose: () => void;
   onSave: (item: NewItem) => void;
 }) {
+  const { isDark } = useTheme();
   const [values, setValues] = useState<string[]>(['', '', '', '']);
 
   useEffect(() => {
@@ -51,9 +53,9 @@ export function CreateItemModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={styles.modalBackdrop} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.modalCard}>
+        <View style={[styles.modalCard, isDark && styles.darkModalCard]}>
           <View style={styles.modalHeader}>
-            <View><Text style={styles.modalKicker}>STUDYOS</Text><Text style={styles.modalTitle}>{config.title}</Text></View>
+            <View><Text style={styles.modalKicker}>STUDYOS</Text><Text style={[styles.modalTitle, isDark && styles.darkModalTitle]}>{config.title}</Text></View>
             <Pressable onPress={onClose} accessibilityLabel="Close"><Text style={styles.modalClose}>×</Text></Pressable>
           </View>
           {config.labels.map((label, index) => (
@@ -64,7 +66,7 @@ export function CreateItemModal({
                 onChangeText={value => update(index, value)}
                 placeholder={config.placeholders[index]}
                 placeholderTextColor={colors.muted}
-                style={[styles.input, mode === 'note' && index === 2 && styles.multilineInput]}
+                style={[styles.input, isDark && styles.darkInput, mode === 'note' && index === 2 && styles.multilineInput]}
                 multiline={mode === 'note' && index === 2}
                 keyboardType={mode === 'attendance' && index > 0 ? 'numeric' : 'default'}
               />

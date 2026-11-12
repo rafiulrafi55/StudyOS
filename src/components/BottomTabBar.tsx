@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import { modules } from '../data/modules';
 import { styles } from '../styles';
 import { ModuleKey } from '../types';
+import { useTheme } from './ThemeProvider';
 
 export function BottomTabBar({
   activeModule,
@@ -11,8 +12,9 @@ export function BottomTabBar({
   activeModule: ModuleKey;
   onSelect: (module: ModuleKey) => void;
 }) {
+  const { isDark } = useTheme();
   return (
-    <View style={styles.tabBar}>
+    <View style={[styles.tabBar, isDark && styles.darkTabBar]}>
       {modules.slice(0, 5).map(module => {
         const selected = activeModule === module.key;
         return (
@@ -22,8 +24,8 @@ export function BottomTabBar({
             onPress={() => onSelect(module.key)}
             accessibilityRole="button"
             accessibilityState={{ selected }}>
-            <Text style={[styles.tabIcon, selected && styles.tabIconSelected]}>{module.icon}</Text>
-            <Text style={[styles.tabLabel, selected && styles.tabLabelSelected]}>{module.label}</Text>
+            <Text style={[styles.tabIcon, isDark && styles.darkMuted, selected && styles.tabIconSelected]}>{module.icon}</Text>
+            <Text style={[styles.tabLabel, isDark && styles.darkMuted, selected && styles.tabLabelSelected]}>{module.label}</Text>
           </Pressable>
         );
       })}

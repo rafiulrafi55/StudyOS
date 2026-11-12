@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Platform, Pressable, StatusBar, Text, View } from 'react-native';
 import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
 import { styles } from '../styles';
 
 function getGreeting() {
@@ -46,6 +47,7 @@ function GuestAvatar() {
 
 export function AppHeader({ onLogin, onSettings }: AppHeaderProps) {
   const { user, signOut } = useAuth();
+  const { isDark } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'Student';
   const initials = getInitials(displayName);
@@ -69,10 +71,10 @@ export function AppHeader({ onLogin, onSettings }: AppHeaderProps) {
 
   return (
     <>
-      <View style={styles.header}>
+      <View style={[styles.header, isDark && styles.darkHeader]}>
         <View>
-          <Text style={styles.eyebrow}>{getFormattedDate()}</Text>
-          <Text style={styles.greeting}>{getGreeting()}, Rafiul</Text>
+          <Text style={[styles.eyebrow, isDark && styles.darkMuted]}>{getFormattedDate()}</Text>
+          <Text style={[styles.greeting, isDark && styles.darkText]}>{getGreeting()}, Rafiul</Text>
         </View>
         <Pressable
           style={styles.avatar}
@@ -91,14 +93,14 @@ export function AppHeader({ onLogin, onSettings }: AppHeaderProps) {
           style={[styles.profileBackdrop, { paddingTop: profileTopOffset }]}
           onPress={() => setIsProfileOpen(false)}
           accessibilityLabel="Close profile menu">
-          <Pressable style={styles.profileMenu} onPress={() => undefined}>
+          <Pressable style={[styles.profileMenu, isDark && styles.darkProfileMenu]} onPress={() => undefined}>
             <View style={styles.profileAvatar}>
               {user ? <Text style={styles.profileAvatarText}>{initials}</Text> : <GuestAvatar />}
             </View>
             {user ? (
               <>
-                <Text style={styles.profileName}>{displayName}</Text>
-                <Text style={styles.profileEmail}>{user.email}</Text>
+                <Text style={[styles.profileName, isDark && styles.darkProfileName]}>{displayName}</Text>
+                <Text style={[styles.profileEmail, isDark && styles.darkProfileEmail]}>{user.email}</Text>
               </>
             ) : (
               <Pressable
@@ -114,7 +116,7 @@ export function AppHeader({ onLogin, onSettings }: AppHeaderProps) {
               onPress={handleSettings}
               accessibilityRole="button">
               <Text style={styles.profileActionIcon}>⚙</Text>
-              <Text style={styles.profileActionText}>Settings</Text>
+              <Text style={[styles.profileActionText, isDark && styles.darkProfileActionText]}>Settings</Text>
             </Pressable>
             {user && (
               <Pressable
@@ -122,7 +124,7 @@ export function AppHeader({ onLogin, onSettings }: AppHeaderProps) {
                 onPress={handleSignOut}
                 accessibilityRole="button">
                 <Text style={styles.profileActionIcon}>↪</Text>
-                <Text style={styles.profileActionText}>Log out</Text>
+                <Text style={[styles.profileActionText, isDark && styles.darkProfileActionText]}>Log out</Text>
               </Pressable>
             )}
           </Pressable>

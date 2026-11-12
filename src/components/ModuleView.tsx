@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { CreateMode } from './CreateItemModal';
 import { styles } from '../styles';
+import { useTheme } from './ThemeProvider';
 import { AttendanceRecord, Exam, Grade, Note, ScheduleItem, Task, ModuleKey } from '../types';
 
 type Props = {
@@ -20,8 +21,9 @@ type Props = {
 };
 
 export function ModuleView({ module, tasks, schedule, exams, attendance, notes, grades, onToggleTask, onDelete, onAdd, isFocusRunning, onToggleFocus }: Props) {
+  const { isDark } = useTheme();
   if (module === 'focus') {
-    return <View style={styles.focusCard}><Text style={styles.progressKicker}>FOCUS SESSION</Text><Text style={styles.focusTitle}>{isFocusRunning ? 'Deep work mode' : 'Ready when you are'}</Text><Text style={styles.timer}>25:00</Text><Text style={styles.focusHint}>Pomodoro · Choose a task to focus on</Text><Pressable style={styles.focusButton} onPress={onToggleFocus}><Text style={styles.focusButtonText}>{isFocusRunning ? 'Pause session' : 'Start session'}</Text></Pressable></View>;
+    return <View style={[styles.focusCard, isDark && styles.darkFocusCard]}><Text style={styles.progressKicker}>FOCUS SESSION</Text><Text style={[styles.focusTitle, isDark && styles.darkText]}>{isFocusRunning ? 'Deep work mode' : 'Ready when you are'}</Text><Text style={styles.timer}>25:00</Text><Text style={[styles.focusHint, isDark && styles.darkMuted]}>Pomodoro · Choose a task to focus on</Text><Pressable style={styles.focusButton} onPress={onToggleFocus}><Text style={styles.focusButtonText}>{isFocusRunning ? 'Pause session' : 'Start session'}</Text></Pressable></View>;
   }
   if (module === 'assignments') {
     return <ListCard title="Tasks" description="Create and manage your assignments and study tasks." empty="No tasks yet." onAdd={() => onAdd('task')} addLabel="Add task">
@@ -56,9 +58,11 @@ export function ModuleView({ module, tasks, schedule, exams, attendance, notes, 
 }
 
 function ListCard({ title, description, empty, children, onAdd, addLabel }: { title: string; description: string; empty: string; children: React.ReactNode; onAdd: () => void; addLabel: string }) {
-  return <View><View style={styles.moduleCard}><Text style={styles.moduleTitle}>{title}</Text><Text style={styles.moduleDescription}>{description}</Text>{children || <Text style={styles.emptyText}>{empty}</Text>}</View><Pressable style={styles.addActivityButton} onPress={onAdd}><Text style={styles.addActivityIcon}>＋</Text><Text style={styles.addActivityText}>{addLabel}</Text></Pressable></View>;
+  const { isDark } = useTheme();
+  return <View><View style={[styles.moduleCard, isDark && styles.darkModuleCard]}><Text style={[styles.moduleTitle, isDark && styles.darkModuleTitle]}>{title}</Text><Text style={[styles.moduleDescription, isDark && styles.darkModuleDescription]}>{description}</Text>{children || <Text style={styles.emptyText}>{empty}</Text>}</View><Pressable style={[styles.addActivityButton, isDark && styles.darkAddActivityButton]} onPress={onAdd}><Text style={styles.addActivityIcon}>＋</Text><Text style={styles.addActivityText}>{addLabel}</Text></Pressable></View>;
 }
 
 function ManagedRow({ title, detail, completed, onPress, onDelete }: { title: string; detail: string; completed?: boolean; onPress?: () => void; onDelete: () => void }) {
-  return <View style={styles.managedRow}><Pressable style={styles.managedMain} onPress={onPress}><View style={[styles.moduleBullet, completed && styles.checkboxDone]}>{completed && <Text style={styles.checkmark}>✓</Text>}</View><View style={styles.flex}><Text style={[styles.moduleRowText, completed && styles.taskDone]}>{title}</Text><Text style={styles.managedDetail}>{detail}</Text></View></Pressable><Pressable onPress={onDelete} accessibilityLabel={`Delete ${title}`}><Text style={styles.deleteText}>×</Text></Pressable></View>;
+  const { isDark } = useTheme();
+  return <View style={styles.managedRow}><Pressable style={styles.managedMain} onPress={onPress}><View style={[styles.moduleBullet, completed && styles.checkboxDone]}>{completed && <Text style={styles.checkmark}>✓</Text>}</View><View style={styles.flex}><Text style={[styles.moduleRowText, isDark && styles.darkModuleRowText, completed && styles.taskDone]}>{title}</Text><Text style={[styles.managedDetail, isDark && styles.darkManagedDetail]}>{detail}</Text></View></Pressable><Pressable onPress={onDelete} accessibilityLabel={`Delete ${title}`}><Text style={styles.deleteText}>×</Text></Pressable></View>;
 }

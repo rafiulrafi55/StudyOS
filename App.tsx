@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CreateItemModal, CreateMode, NewItem } from './src/components/CreateItemModal';
 import { BottomTabBar } from './src/components/BottomTabBar';
@@ -9,13 +9,17 @@ import { ModuleView } from './src/components/ModuleView';
 import { AppHeader } from './src/components/AppHeader';
 import { AuthProvider, useAuth } from './src/components/AuthProvider';
 import { AuthScreen } from './src/components/AuthScreen';
+import { SettingsScreen } from './src/components/SettingsScreen';
+import { ThemeProvider, useTheme } from './src/components/ThemeProvider';
 import { modules } from './src/data/modules';
 import { styles } from './src/styles';
 import { AttendanceRecord, Exam, Grade, Note, ScheduleItem, Task, ModuleKey } from './src/types';
 
 function MainApp() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [isAuthScreenVisible, setIsAuthScreenVisible] = useState(false);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [activeModule, setActiveModule] = useState<ModuleKey>('home');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -77,21 +81,32 @@ function MainApp() {
   if (isAuthScreenVisible) {
     return <AuthScreen onClose={() => setIsAuthScreenVisible(false)} />;
   }
+  if (isSettingsVisible) {
+    return (
+      <SettingsScreen
+        onClose={() => setIsSettingsVisible(false)}
+        onLogin={() => {
+          setIsSettingsVisible(false);
+          setIsAuthScreenVisible(true);
+        }}
+      />
+    );
+  }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.app}>
+    <SafeAreaView style={[styles.safeArea, isDark && styles.darkSafeArea]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <View style={[styles.app, isDark && styles.darkApp]}>
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}>
           <AppHeader
             onLogin={() => setIsAuthScreenVisible(true)}
-            onSettings={() => Alert.alert('Settings', 'Settings will be available here soon.')}
+            onSettings={() => setIsSettingsVisible(true)}
           />
           {activeModule === 'home' && <HeroCard onStartFocus={openFocus} />}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{activeLabel}</Text>
+            <Text style={[styles.sectionTitle, isDark && styles.darkSectionTitle]}>{activeLabel}</Text>
             <Pressable onPress={() => setActiveModule('home')}>
               <Text style={styles.seeAll}>View overview</Text>
             </Pressable>
@@ -128,7 +143,9 @@ function MainApp() {
 function App() {
   return (
     <AuthProvider>
-      <MainApp />
+      <ThemeProvider>
+        <MainApp />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
