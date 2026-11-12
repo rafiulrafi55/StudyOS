@@ -1,45 +1,136 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { CreateItemModal, CreateMode, NewItem } from './src/components/CreateItemModal';
+import { BottomTabBar } from './src/components/BottomTabBar';
+import { Dashboard } from './src/components/Dashboard';
+import { HeroCard } from './src/components/HeroCard';
+import { ModuleView } from './src/components/ModuleView';
+import { AppHeader } from './src/components/AppHeader';
+import { AuthProvider, useAuth } from './src/components/AuthProvider';
+import { AuthScreen } from './src/components/AuthScreen';
+import { modules } from './src/data/modules';
+import { styles } from './src/styles';
+import { AttendanceRecord, Exam, Grade, Note, ScheduleItem, Task, ModuleKey } from './src/types';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+function MainApp() {
+  const { user } = useAuth();
+  const [isAuthScreenVisible, setIsAuthScreenVisible] = useState(false);
+  const [activeModule, setActiveModule] = useState<ModuleKey>('home');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [createMode, setCreateMode] = useState<CreateMode | null>(null);
+  const [isFocusRunning, setIsFocusRunning] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setIsAuthScreenVisible(false);
+    }
+  }, [user]);
+
+  const activeLabel = useMemo(
+    () => modules.find(module => module.key === activeModule)?.label ?? 'Overview',
+    [activeModule],
+  );
+
+  const toggleTask = (id: string) => {
+    setTasks(current => current.map(task => task.id === id ? { ...task, completed: !task.completed } : task));
+  };
+  const deleteItem = (id: string) => {
+    setTasks(current => current.filter(item => item.id !== id));
+    setSchedule(current => current.filter(item => item.id !== id));
+    setExams(current => current.filter(item => item.id !== id));
+    setAttendance(current => current.filter(item => item.id !== id));
+    setNotes(current => current.filter(item => item.id !== id));
+    setGrades(current => current.filter(item => item.id !== id));
+  };
+  const saveItem = (item: NewItem) => {
+    if ('completed' in item) setTasks(current => [item, ...current]);
+    else if ('location' in item) setSchedule(current => [item, ...current]);
+    else if ('subject' in item && 'date' in item) setExams(current => [item, ...current]);
+    else if ('course' in item) setAttendance(current => [item, ...current]);
+    else if ('grade' in item) setGrades(current => [item, ...current]);
+    else setNotes(current => [item, ...current]);
+  };
+  const openCreate = (mode: CreateMode) => {
+    setCreateMode(mode);
+  };
+  const closeCreate = () => {
+    setCreateMode(null);
+  };
+  const openFocus = () => {
+    setActiveModule('focus');
+  };
+  const data = {
+    tasks,
+    schedule,
+    exams,
+    attendance,
+    notes,
+    grades,
+  };
+
+  if (isAuthScreenVisible) {
+    return <AuthScreen onClose={() => setIsAuthScreenVisible(false)} />;
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.app}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}>
+          <AppHeader
+            onLogin={() => setIsAuthScreenVisible(true)}
+            onSettings={() => Alert.alert('Settings', 'Settings will be available here soon.')}
+          />
+          {activeModule === 'home' && <HeroCard onStartFocus={openFocus} />}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{activeLabel}</Text>
+            <Pressable onPress={() => setActiveModule('home')}>
+              <Text style={styles.seeAll}>View overview</Text>
+            </Pressable>
+          </View>
+          {activeModule === 'home' ? (
+            <Dashboard
+              tasks={tasks}
+              schedule={schedule}
+              exams={exams}
+              attendance={attendance}
+              onToggleTask={toggleTask}
+              onOpenModule={setActiveModule}
+              onAddTask={() => openCreate('task')}
+            />
+          ) : (
+            <ModuleView
+              module={activeModule}
+              {...data}
+              onToggleTask={toggleTask}
+              onDelete={deleteItem}
+              onAdd={openCreate}
+              isFocusRunning={isFocusRunning}
+              onToggleFocus={() => setIsFocusRunning(current => !current)}
+            />
+          )}
+        </ScrollView>
+        <BottomTabBar activeModule={activeModule} onSelect={setActiveModule} />
+        <CreateItemModal mode={createMode} visible={createMode !== null} onClose={closeCreate} onSave={saveItem} />
+      </View>
+    </SafeAreaView>
+  );
+}
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
   return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 }
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;
