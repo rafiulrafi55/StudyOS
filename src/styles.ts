@@ -128,7 +128,7 @@ export const styles = StyleSheet.create({
   focusButton: { backgroundColor: colors.green, borderRadius: 22, paddingHorizontal: 25, paddingVertical: 13, marginTop: 22 },
   focusButtonText: { color: '#FFF', fontSize: 13, fontWeight: '700' },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(24, 33, 31, 0.45)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: colors.card, borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: 22, paddingBottom: 30 },
+  modalCard: { backgroundColor: colors.card, borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: 22, paddingBottom: 70 },
   darkModalCard: { backgroundColor: '#121212' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 22 },
   modalKicker: { color: colors.green, fontSize: 10, fontWeight: '800', letterSpacing: 1.1, marginBottom: 6 },
