@@ -136,6 +136,8 @@ export const styles = StyleSheet.create({
   darkModalTitle: { color: '#FFFFFF' },
   modalClose: { color: colors.muted, fontSize: 30, lineHeight: 28, fontWeight: '300' },
   inputLabel: { color: colors.ink, fontSize: 11, fontWeight: '700', marginBottom: 8, marginTop: 4 },
+  darkInputLabel: { color: '#929292' },
+  datePickerText: { fontSize: 13 },
   input: { borderWidth: 1, borderColor: colors.line, borderRadius: 13, color: colors.ink, fontSize: 13, paddingHorizontal: 13, paddingVertical: 11, marginBottom: 15 },
   multilineInput: { minHeight: 74, textAlignVertical: 'top' },
   categoryRow: { flexDirection: 'row', gap: 8, marginBottom: 15 },
