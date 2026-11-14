@@ -27,6 +27,7 @@ export function OverviewScreen({ tasks, attendance, exams, onClose }: OverviewSc
   // Basic stats
   const completedTasks = tasks.filter(t => t.completed).length;
   const totalTasks = tasks.length;
+  const pendingTasks = totalTasks - completedTasks;
   const avgAttendance = attendance.length
     ? Math.round(attendance.reduce((sum, item) => sum + (item.total ? item.present / item.total : 0), 0) / attendance.length * 100)
     : 0;
@@ -41,44 +42,53 @@ export function OverviewScreen({ tasks, attendance, exams, onClose }: OverviewSc
         <View style={styles.headerSpacer} />
       </View>
       <ScrollView contentContainerStyle={globalStyles.content}>
-        {/* Pie Chart */}
-        <View style={{ alignItems: 'center', marginVertical: 20 }}>
-          <Svg width="200" height="200" viewBox="0 0 32 32">
+        {/* Centered Large Pie Chart */}
+        <View style={{ alignItems: 'center', marginVertical: 30 }}>
+          <Svg width="220" height="220" viewBox="0 0 32 32">
             <Path fill={colors.greenSoft} d="M16 0 A16 16 0 0 1 32 16 L 16 16 Z" />
             <Path fill={colors.green} d="M32 16 A16 16 0 0 1 16 32 L 16 16 Z" />
             <Path fill={colors.yellow} d="M16 32 A16 16 0 0 1 0 16 L 16 16 Z" />
             <Path fill={colors.peach} d="M0 16 A16 16 0 0 1 16 0 L 16 16 Z" />
           </Svg>
-          <View style={{ marginTop: 20, gap: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ width: 12, height: 12, backgroundColor: colors.greenSoft, borderRadius: 3 }} />
-              <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle]}>Attendance ({avgAttendance}%)</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ width: 12, height: 12, backgroundColor: colors.green, borderRadius: 3 }} />
-              <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle]}>Tasks Completed ({completedTasks})</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ width: 12, height: 12, backgroundColor: colors.yellow, borderRadius: 3 }} />
-              <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle]}>Upcoming Exams ({exams.length})</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={{ width: 12, height: 12, backgroundColor: colors.peach, borderRadius: 3 }} />
-              <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle]}>Pending Tasks ({totalTasks - completedTasks})</Text>
-            </View>
+
+          {/* Legend below chart */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 15, marginTop: 24, paddingHorizontal: 20 }}>
+            <LegendItem color={colors.greenSoft} label="Attendance" />
+            <LegendItem color={colors.green} label="Completed" />
+            <LegendItem color={colors.yellow} label="Exams" />
+            <LegendItem color={colors.peach} label="Pending" />
           </View>
         </View>
 
-        <View style={[globalStyles.card, isDark && globalStyles.darkCard]}>
-          <Text style={[globalStyles.cardTitle, isDark && globalStyles.darkCardTitle]}>Summary</Text>
-          <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle, { marginTop: 10, lineHeight: 18 }]}>
-            You have completed {completedTasks} out of {totalTasks} tasks.
-            Your average attendance across all courses is {avgAttendance}%.
-            You have {exams.length} upcoming exams.
-          </Text>
+        {/* Detailed Stats */}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+          <StatBox label="Attendance" value={`${avgAttendance}%`} color={colors.greenSoft} />
+          <StatBox label="Tasks Done" value={completedTasks.toString()} color={colors.green} />
+          <StatBox label="Exams" value={exams.length.toString()} color={colors.yellow} />
+          <StatBox label="Pending" value={pendingTasks.toString()} color={colors.peach} />
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function LegendItem({ color, label }: { color: string; label: string }) {
+  const { isDark } = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <View style={{ width: 10, height: 10, backgroundColor: color, borderRadius: 2 }} />
+      <Text style={[globalStyles.cardSubtitle, isDark && globalStyles.darkCardSubtitle, { fontSize: 11 }]}>{label}</Text>
+    </View>
+  );
+}
+
+function StatBox({ label, value, color }: { label: string; value: string; color: string }) {
+  const { isDark } = useTheme();
+  return (
+    <View style={[{ backgroundColor: color, padding: 15, borderRadius: 15, width: '47%' }, isDark && { backgroundColor: color + '40' }]}>
+      <Text style={[globalStyles.cardSubtitle, isDark && { color: '#ccc' }]}>{label}</Text>
+      <Text style={[globalStyles.cardTitle, isDark && { color: '#fff' }, { fontSize: 20, marginTop: 5 }]}>{value}</Text>
+    </View>
   );
 }
 
