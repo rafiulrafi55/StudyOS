@@ -58,7 +58,8 @@ export function CreateItemModal({
   const openDatePicker = (field: DatePickerField, modeType: 'date' | 'time') => {
     setPickerField(field);
     setPickerMode(modeType);
-    const existing = values[config.labels.indexOf(config.labels.find((_, i) => isDateField(i) === field) ?? 0)];
+    const labelIndex = config.labels.findIndex((_, i) => isDateField(i) === field);
+    const existing = values[labelIndex];
     if (existing) {
       setTempDate(new Date(existing));
     } else {
@@ -67,15 +68,19 @@ export function CreateItemModal({
     setPickerVisible(true);
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const onValueChange = (_event: any, selectedDate?: Date) => {
     setPickerVisible(false);
     if (selectedDate && pickerField) {
       const fieldIndex = config.labels.findIndex((_, i) => isDateField(i) === pickerField);
       if (fieldIndex >= 0) {
-        const isoString = selectedDate.toISOString();
-        update(fieldIndex, isoString);
+        update(fieldIndex, selectedDate.toISOString());
       }
     }
+    setPickerField(null);
+  };
+
+  const onDismiss = () => {
+    setPickerVisible(false);
     setPickerField(null);
   };
 
@@ -150,20 +155,37 @@ export function CreateItemModal({
         </View>
       </KeyboardAvoidingView>
 
-      {/* DateTimePicker Modal */}
-      <Modal visible={pickerVisible} transparent animationType="fade">
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: isDark ? '#121212' : '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 }}>
-            <DateTimePicker
-              value={tempDate}
-              mode={pickerMode}
-              is24Hour={false}
-              onChange={handleDateChange}
-              display="default"
-            />
+      {/* DateTimePicker: Android renders its own native dialog, iOS needs an inline wrapper */}
+      {Platform.OS === 'ios' ? (
+        <Modal visible={pickerVisible} transparent animationType="fade">
+          <View style={styles.pickerBackdrop}>
+            <View style={[styles.pickerContainer, isDark && styles.darkPickerContainer]}>
+              <DateTimePicker
+                value={tempDate}
+                mode={pickerMode}
+                is24Hour={false}
+                onValueChange={onValueChange}
+                onDismiss={onDismiss}
+                display="spinner"
+              />
+              <Pressable style={styles.saveActivityButton} onPress={onDismiss}>
+                <Text style={styles.saveActivityText}>Done</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      ) : (
+        pickerVisible && (
+          <DateTimePicker
+            value={tempDate}
+            mode={pickerMode}
+            is24Hour={false}
+            onValueChange={onValueChange}
+            onDismiss={onDismiss}
+            display="default"
+          />
+        )
+      )}
     </Modal>
   );
 }

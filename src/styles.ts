@@ -155,4 +155,7 @@ export const styles = StyleSheet.create({
   tabIconSelected: { color: colors.green, fontWeight: '700' },
   tabLabel: { color: '#9AA39E', fontSize: 9, marginTop: 2 },
   tabLabelSelected: { color: colors.green, fontWeight: '700' },
+  pickerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  pickerContainer: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
+  darkPickerContainer: { backgroundColor: '#121212' },
 });
