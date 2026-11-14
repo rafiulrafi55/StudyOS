@@ -10,6 +10,7 @@ import { AppHeader } from './src/components/AppHeader';
 import { AuthProvider, useAuth } from './src/components/AuthProvider';
 import { AuthScreen } from './src/components/AuthScreen';
 import { SettingsScreen } from './src/components/SettingsScreen';
+import { OverviewScreen } from './src/components/OverviewScreen';
 import { ThemeProvider, useTheme } from './src/components/ThemeProvider';
 import { modules } from './src/data/modules';
 import { styles } from './src/styles';
@@ -20,6 +21,7 @@ function MainApp() {
   const { isDark } = useTheme();
   const [isAuthScreenVisible, setIsAuthScreenVisible] = useState(false);
   const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+  const [isOverviewVisible, setIsOverviewVisible] = useState(false);
   const [activeModule, setActiveModule] = useState<ModuleKey>('home');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
@@ -92,6 +94,16 @@ function MainApp() {
       />
     );
   }
+  if (isOverviewVisible) {
+    return (
+      <OverviewScreen
+        tasks={tasks}
+        attendance={attendance}
+        exams={exams}
+        onClose={() => setIsOverviewVisible(false)}
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={[styles.safeArea, isDark && styles.darkSafeArea]}>
@@ -107,7 +119,7 @@ function MainApp() {
           {activeModule === 'home' && <HeroCard onStartFocus={openFocus} />}
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, isDark && styles.darkSectionTitle]}>{activeLabel}</Text>
-            <Pressable onPress={() => setActiveModule('home')}>
+            <Pressable onPress={() => setIsOverviewVisible(true)}>
               <Text style={styles.seeAll}>View overview</Text>
             </Pressable>
           </View>
