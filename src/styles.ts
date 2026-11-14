@@ -158,4 +158,8 @@ export const styles = StyleSheet.create({
   pickerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
   pickerContainer: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20 },
   darkPickerContainer: { backgroundColor: '#121212' },
+  dayOption: { padding: 15, borderBottomWidth: 1, borderBottomColor: colors.line, alignItems: 'center' },
+  darkDayOption: { borderBottomColor: '#242424' },
+  dayOptionText: { fontSize: 16, color: colors.ink },
+  darkDayOptionText: { color: '#fff' },
 });

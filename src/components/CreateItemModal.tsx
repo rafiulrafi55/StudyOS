@@ -27,6 +27,9 @@ export function CreateItemModal({
   const [pickerMode, setPickerMode] = useState<'date' | 'time'>('date');
   const [pickerField, setPickerField] = useState<DatePickerField | null>(null);
   const [tempDate, setTempDate] = useState<Date>(new Date());
+  const [showDayPicker, setShowDayPicker] = useState(false);
+
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   useEffect(() => {
     if (visible) setValues(['', '', '', '']);
@@ -45,11 +48,12 @@ export function CreateItemModal({
 
   const isDateField = (index: number): DatePickerField | null => {
     if (mode === 'task' && index === 1) return 'task-due';
-    if (mode === 'schedule' && index === 1) return 'schedule-day';
     if (mode === 'schedule' && index === 2) return 'schedule-time';
     if (mode === 'exam' && index === 1) return 'exam-date';
     return null;
   };
+
+  const isDayDropdown = (index: number): boolean => mode === 'schedule' && index === 1;
 
   const update = (index: number, value: string) => {
     setValues(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
@@ -124,7 +128,18 @@ export function CreateItemModal({
             return (
               <View key={label}>
                 <Text style={[styles.inputLabel, isDark && styles.darkInputLabel]}>{label}</Text>
-                {field ? (
+                {isDayDropdown(index) ? (
+                  <Pressable
+                    style={[styles.input, isDark && styles.darkInput, { justifyContent: 'center' }]}
+                    onPress={() => setShowDayPicker(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Select ${label}`}
+                  >
+                    <Text style={[styles.datePickerText, { color: values[index] ? (isDark ? '#fff' : colors.ink) : colors.muted }]}>
+                      {values[index] || config.placeholders[index]}
+                    </Text>
+                  </Pressable>
+                ) : field ? (
                   <Pressable
                     style={[styles.input, isDark && styles.darkInput, { justifyContent: 'center' }]}
                     onPress={() => openDatePicker(field, isTimeField ? 'time' : 'date')}
@@ -186,6 +201,28 @@ export function CreateItemModal({
           />
         )
       )}
+      {/* Day of week dropdown */}
+      <Modal visible={showDayPicker} transparent animationType="fade" onRequestClose={() => setShowDayPicker(false)}>
+        <Pressable style={styles.pickerBackdrop} onPress={() => setShowDayPicker(false)}>
+          <View style={[styles.pickerContainer, isDark && styles.darkPickerContainer, { borderRadius: 20, marginHorizontal: 40, marginBottom: 120 }]}>
+            <Text style={[styles.inputLabel, isDark && styles.darkInputLabel, { textAlign: 'center', marginBottom: 12 }]}>SELECT DAY</Text>
+            {daysOfWeek.map(day => (
+              <Pressable
+                key={day}
+                style={[styles.dayOption, isDark && styles.darkDayOption]}
+                onPress={() => {
+                  update(1, day);
+                  setShowDayPicker(false);
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Select ${day}`}
+              >
+                <Text style={[styles.dayOptionText, isDark && styles.darkDayOptionText]}>{day}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
     </Modal>
   );
 }
