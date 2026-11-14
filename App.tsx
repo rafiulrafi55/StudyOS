@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { CreateItemModal, CreateMode, NewItem } from './src/components/CreateItemModal';
 import { BottomTabBar } from './src/components/BottomTabBar';
 import { Dashboard } from './src/components/Dashboard';
@@ -142,11 +142,13 @@ function MainApp() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <MainApp />
-      </ThemeProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <MainApp />
+        </ThemeProvider>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 

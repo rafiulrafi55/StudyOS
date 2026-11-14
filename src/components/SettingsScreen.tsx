@@ -1,14 +1,6 @@
 import React, { useEffect } from 'react';
-import {
-  BackHandler,
-  Pressable,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Switch,
-  Text,
-  View,
-} from 'react-native';
+import { BackHandler, Pressable, StatusBar, StyleSheet, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
 
@@ -92,7 +84,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 22, paddingVertical: 14 },
   backButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E8EFEB', alignItems: 'center', justifyContent: 'center' },
   darkButton: { backgroundColor: '#171717' },
-  backText: { color: '#2F6B56', fontSize: 32, lineHeight: 34, fontWeight: '300', marginTop: -3 },
+  backText: { color: '#2F6B56', fontSize: 32, lineHeight: 34, fontWeight: '300', marginTop: -5, textAlign: 'center', textAlignVertical: 'center' },
   darkMuted: { color: '#929292' },
   headerTitle: { color: '#18211F', fontSize: 20, fontWeight: '800' },
   darkText: { color: '#FFFFFF' },
