@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { CreateItemModal, CreateMode, NewItem } from './src/components/CreateItemModal';
 import { BottomTabBar } from './src/components/BottomTabBar';
@@ -16,6 +17,30 @@ import { modules } from './src/data/modules';
 import { styles } from './src/styles';
 import { AttendanceRecord, Exam, Grade, Note, ScheduleItem, Task, ModuleKey } from './src/types';
 
+const DATA_STORAGE_KEY = '@studyos/data';
+
+type PersistedData = {
+  version: 1;
+  tasks: Task[];
+  schedule: ScheduleItem[];
+  exams: Exam[];
+  attendance: AttendanceRecord[];
+  notes: Note[];
+  grades: Grade[];
+};
+
+function isPersistedData(value: unknown): value is PersistedData {
+  if (!value || typeof value !== 'object') return false;
+  const data = value as Partial<PersistedData>;
+  return data.version === 1
+    && Array.isArray(data.tasks)
+    && Array.isArray(data.schedule)
+    && Array.isArray(data.exams)
+    && Array.isArray(data.attendance)
+    && Array.isArray(data.notes)
+    && Array.isArray(data.grades);
+}
+
 function MainApp() {
   const { user } = useAuth();
   const { isDark } = useTheme();
@@ -31,6 +56,59 @@ function MainApp() {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [createMode, setCreateMode] = useState<CreateMode | null>(null);
   const [isFocusRunning, setIsFocusRunning] = useState(false);
+  const [isDataHydrated, setIsDataHydrated] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem(DATA_STORAGE_KEY);
+        if (!storedData) return;
+
+        const parsedData: unknown = JSON.parse(storedData);
+        if (!isPersistedData(parsedData)) {
+          throw new Error('Stored StudyOS data has an invalid format.');
+        }
+
+        if (isMounted) {
+          setTasks(parsedData.tasks);
+          setSchedule(parsedData.schedule);
+          setExams(parsedData.exams);
+          setAttendance(parsedData.attendance);
+          setNotes(parsedData.notes);
+          setGrades(parsedData.grades);
+        }
+      } catch (error) {
+        console.error('Failed to load local StudyOS data:', error);
+      } finally {
+        if (isMounted) setIsDataHydrated(true);
+      }
+    };
+
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDataHydrated) return;
+
+    const data: PersistedData = {
+      version: 1,
+      tasks,
+      schedule,
+      exams,
+      attendance,
+      notes,
+      grades,
+    };
+
+    AsyncStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(data)).catch(error => {
+      console.error('Failed to save local StudyOS data:', error);
+    });
+  }, [attendance, exams, grades, isDataHydrated, notes, schedule, tasks]);
 
   useEffect(() => {
     if (user) {
@@ -79,6 +157,10 @@ function MainApp() {
     notes,
     grades,
   };
+
+  if (!isDataHydrated) {
+    return <ActivityIndicator style={{ flex: 1 }} size="large" color="#2F6B56" />;
+  }
 
   if (isAuthScreenVisible) {
     return <AuthScreen onClose={() => setIsAuthScreenVisible(false)} />;
